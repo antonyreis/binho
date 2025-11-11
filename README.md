@@ -1,4 +1,4 @@
-# binho
+### binho
 Projeto desenvolvido durante a disciplina de Robôs Móveis e Inteligentes – Faculdade Impacta. Inclui códigos, simulações e anotações relacionadas a navegação, sensores e controle de robôs autônomos.
 # Robô Móvel Inteligente Binho - Estágios do Projeto
 
@@ -108,8 +108,12 @@ Otimizar o sistema completo reintroduzindo mobilidade através de um novo sistem
 
 ## 👥 Equipe de Desenvolvimento
 
-Este projeto representa a colaboração entre os membros #TODO
-
+- Antony Reis
+- Giovanna Santos
+- Cinthya Mayumi Kuniyoshi
+- Isaac Asenjo
+- Enrico Marçola
+- Kelvin
 ---
 
 ## 📝 Notas Importantes
