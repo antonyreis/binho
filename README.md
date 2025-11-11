@@ -21,7 +21,7 @@ sensores e controle de robôs autônomos.
 ### 📸 Foto da Equipe
 
 
-![Foto da Equipe](docs/imagens/equipe.jpg)
+![Foto da Equipe](docs/team.jfif)
 
 ------------------------------------------------------------------------
 
@@ -94,7 +94,7 @@ Robô móvel capaz de se deslocar e escrever em diferentes superfícies.
 
 > *(Exemplo de referência: `docs/imagens/prototipo.jpg`)*
 
-![Foto do Protótipo](docs/imagens/prototipo.jpg)
+![Foto do Protótipo](docs/binho.jpg)
 
 ------------------------------------------------------------------------
 
