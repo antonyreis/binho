@@ -11,12 +11,12 @@ sensores e controle de robôs autônomos.
 
   Integrante                 RA
   -------------------------- ----------
-  Antony Reis                2301700
-  Giovanna Santos            2301206
-  Cinthya Mayumi Kuniyoshi   2301625
-  Isaac Asenjo               2301311
-  Enrico Marçola             2300368
-  Kelvin                     2301504
+- Antony Reis                2301700
+- Giovanna Santos            2301206
+- Cinthya Mayumi Kuniyoshi   2301625
+- Isaac Asenjo               2301311
+- Enrico Marçola             2300368
+- Kelvin                     2301504
 
 ### 📸 Foto da Equipe
 
