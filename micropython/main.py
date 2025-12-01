@@ -1,137 +1,213 @@
-# ---------------------------
-# Código EV3 MicroPython — Escrita de Letras
-# ---------------------------
+#!/usr/bin/env pybricks-micropython
+"""
+main.py - Teste simples do Binho
+Para pybricks-micropython
+"""
+
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor
-from pybricks.parameters import Port, Stop
+from pybricks.parameters import Port
 from pybricks.tools import wait
 import math
 
-# ---------------------------
-# CONFIGURAÇÃO
-# ---------------------------
+# =============================================================================
+# CONFIGURAÇÕES - AJUSTE AQUI
+# =============================================================================
+
+# Medidas físicas (meça com régua!)
+WHEEL_DIAMETER_MM = 30      # Diâmetro da roda em milímetros
+WHEELBASE_MM = 142          # Distância entre as rodas em milímetros
+
+# Fatores de correção (ajuste testando)
+LINEAR_CORRECTION = 0.54     # Aumente se andar menos que o esperado
+ROTATION_CORRECTION = 0.585   # Aumente se girar menos que o esperado
+
+# Velocidade (graus por segundo)
+SPEED = 100                 # 100 = devagar, 500 = rápido
+
+# =============================================================================
+# INICIALIZAÇÃO
+# =============================================================================
+
+# Inicializa o brick
 ev3 = EV3Brick()
 
-# Motores (ajuste conforme solicitado)
-motor_esq = Motor(Port.A)   # roda esquerda -> Porta 1
-motor_dir = Motor(Port.D)   # roda direita -> Porta 4
+# Inicializa motores
+motor_left = Motor(Port.D)
+motor_right = Motor(Port.A)
 
-# Geometria do robô (em cm)
-L = 19.0          # distância entre rodas (cm)
-circ_roda = 15.7  # circunferência da roda (cm)
+ev3.speaker.beep()
+print("Binho pronto!")
 
-# Posição da caneta (em cm)
-p_caneta_x = 2.0
-p_caneta_y = -7.0
-
-# ---------------------------
+# =============================================================================
 # FUNÇÕES BÁSICAS
-# ---------------------------
-def cm_para_graus_roda(dist_cm):
-    """Converte distância (cm) em graus da roda."""
-    return (dist_cm / circ_roda) * 360.0
+# =============================================================================
 
-def enviar_comando(dist_esq_cm, dist_dir_cm, velocidade=200):
-    """Movimenta as rodas com distâncias em cm."""
-    deg_esq = cm_para_graus_roda(dist_esq_cm)
-    deg_dir = cm_para_graus_roda(dist_dir_cm)
-    motor_esq.run_angle(velocidade, deg_esq, Stop.BRAKE, False)
-    motor_dir.run_angle(velocidade, deg_dir, Stop.BRAKE, True)
+def andar_mm(distancia):
+    """Anda X milímetros para frente (ou para trás se negativo)"""
+    circunferencia = math.pi * WHEEL_DIAMETER_MM
+    graus_motor = (distancia / circunferencia) * 360 * LINEAR_CORRECTION
 
-def mover_frente(dist_cm, velocidade=200):
-    enviar_comando(dist_cm, dist_cm, velocidade)
+    motor_left.run_angle(SPEED, graus_motor, wait=False)
+    motor_right.run_angle(SPEED, graus_motor, wait=True)
 
-def mover_tras(dist_cm, velocidade=200):
-    enviar_comando(-dist_cm, -dist_cm, velocidade)
+def andar_cm(distancia):
+    """Anda X centímetros para frente"""
+    andar_mm(distancia * 10)
 
-def girar_com_compensacao(angulo_graus, passos=40, velocidade=180):
-    """
-    Gira o robô de 'angulo_graus' mantendo o ponto da caneta aproximadamente fixo.
-    """
-    total_theta = math.radians(angulo_graus)
-    sinal = 1.0 if total_theta >= 0 else -1.0
-    total_theta = abs(total_theta)
-    dtheta = total_theta / passos
-    L_m = L
+def girar_graus(angulo):
+    """Gira X graus (positivo = direita, negativo = esquerda)"""
+    arco = (WHEELBASE_MM * math.pi * abs(angulo)) / 360
+    circunferencia = math.pi * WHEEL_DIAMETER_MM
+    graus_motor = (arco / circunferencia) * 360 * ROTATION_CORRECTION
 
-    for _ in range(passos):
-        delta_s = dtheta * p_caneta_y
-        dl = delta_s - (L_m / 2.0) * dtheta
-        dr = delta_s + (L_m / 2.0) * dtheta
-        if sinal < 0:
-            dl, dr = -dl, -dr
-        enviar_comando(dl, dr, velocidade)
+    if angulo > 0:  # Direita
+        motor_left.run_angle(SPEED, graus_motor, wait=False)
+        motor_right.run_angle(SPEED, -graus_motor, wait=True)
+    else:  # Esquerda
+        motor_left.run_angle(SPEED, -graus_motor, wait=False)
+        motor_right.run_angle(SPEED, graus_motor, wait=True)
 
-# ---------------------------
-# LETRAS
-# ---------------------------
-def letra_A():
-    mover_frente(8)
-    girar_com_compensacao(135)
-    mover_frente(5.6)
-    mover_tras(5.6)
-    girar_com_compensacao(-270)
-    mover_frente(5.6)
-    girar_com_compensacao(135)
-    mover_frente(8)
-    girar_com_compensacao(90)
-    mover_frente(4)
-    girar_com_compensacao(90)
-    mover_frente(3)
-    girar_com_compensacao(180)
-    mover_frente(3)
-    girar_com_compensacao(90)
-    mover_frente(4)
-    girar_com_compensacao(-90)
+def esperar(segundos):
+    """Pausa em segundos"""
+    wait(int(segundos * 1000))
 
-def letra_B():
-    mover_frente(8)
-    girar_com_compensacao(90)
-    mover_frente(3)
-    girar_com_compensacao(90)
-    mover_frente(4)
-    girar_com_compensacao(90)
-    mover_frente(3)
-    girar_com_compensacao(-180)
-    mover_frente(3)
-    girar_com_compensacao(90)
-    mover_frente(4)
-    girar_com_compensacao(90)
-    mover_frente(3)
-    girar_com_compensacao(90)
+# =============================================================================
+# TESTES 
+# =============================================================================
 
-def letra_C():
-    girar_com_compensacao(180)
-    mover_frente(8)
-    girar_com_compensacao(-90)
-    mover_frente(5)
-    girar_com_compensacao(-90)
-    mover_frente(8)
-    girar_com_compensacao(180)
+def teste_linha():
+    """Desenha linha reta de 20cm - meça depois!"""
+    print("Teste: linha de 20cm")
+    ev3.speaker.beep()
+    esperar(2)
 
-def letra_L():
-    mover_frente(8)
-    girar_com_compensacao(90)
-    mover_frente(5)
-    girar_com_compensacao(90)
+    andar_cm(20)
 
-def letra_O():
-    for _ in range(4):
-        mover_frente(6)
-        girar_com_compensacao(90)
+    ev3.speaker.beep()
+    print("Pronto! Meça a linha com régua")
 
-# ---------------------------
-# EXEMPLO DE USO
-# ---------------------------
-def escrever_nome():
-    """Exemplo: desenhar L, O, B"""
-    letra_L()
-    mover_frente(2)
-    letra_O()
-    mover_frente(2)
-    letra_B()
+def teste_quadrado():
+    """Desenha quadrado de 10x10cm"""
+    print("Teste: quadrado 10x10cm")
+    ev3.speaker.beep()
+    esperar(2)
 
-# ---------------------------
-# EXECUÇÃO
-# ---------------------------
-escrever_nome()
+    for i in range(4):
+        print("Lado " + str(i+1))
+        andar_cm(10)
+        girar_graus(90)
+
+    ev3.speaker.beep()
+    print("Pronto! Veja se fechou certinho")
+
+def teste_triangulo():
+    """Desenha triângulo"""
+    print("Teste: triângulo")
+    ev3.speaker.beep()
+    esperar(2)
+
+    for i in range(3):
+        andar_cm(10)
+        girar_graus(120)
+
+    ev3.speaker.beep()
+    print("Triângulo feito!")
+
+def teste_letra_L():
+    """Desenha um L"""
+    print("Teste: letra L")
+    ev3.speaker.beep()
+    esperar(2)
+
+    andar_cm(10)      # Linha vertical
+    girar_graus(-90)  # Vira para esquerda
+    andar_cm(8)       # Linha horizontal
+
+    ev3.speaker.beep()
+    print("L desenhado!")
+
+def teste_letra_O():
+    """Desenha um O (círculo em segmentos)"""
+    print("Teste: letra O")
+    ev3.speaker.beep()
+    esperar(2)
+
+    # Círculo = 36 passos pequenos de 10 graus cada
+    for i in range(36):
+        andar_mm(8.7) 
+        girar_graus(10) # Gira 10 graus
+
+    ev3.speaker.beep()
+    print("O desenhado!")
+
+def teste_letra_I():
+    """Desenha um I"""
+    print("Teste: letra I")
+    ev3.speaker.beep()
+    esperar(2)
+
+    # Barra superior
+    andar_cm(3)
+    andar_cm(-1.5)
+
+    # Barra vertical
+    girar_graus(-90)
+    andar_cm(10)
+
+    # Barra inferior
+    girar_graus(90)
+    andar_cm(-1.5)
+    andar_cm(3)
+
+    ev3.speaker.beep()
+    print("I desenhado!")
+
+def teste_zigue_zague():
+    """Desenha zigue-zague"""
+    print("Teste: zigue-zague")
+    ev3.speaker.beep()
+    esperar(2)
+
+    for i in range(4):
+        andar_cm(5)
+        girar_graus(60)
+        andar_cm(5)
+        girar_graus(-60)
+
+    ev3.speaker.beep()
+    print("Zigue-zague feito!")
+
+def teste_estrela():
+    """Desenha uma estrela de 5 pontas"""
+    print("Teste: estrela")
+    ev3.speaker.beep()
+    esperar(2)
+
+    for i in range(5):
+        andar_cm(10)
+        girar_graus(144)  # 144 graus para estrela de 5 pontas
+
+    ev3.speaker.beep()
+    print("Estrela feita!")
+
+# =============================================================================
+# EXECUÇÃO PRINCIPAL
+# =============================================================================
+
+esperar(1)
+
+#teste_linha() 
+#teste_quadrado()
+#teste_triangulo()
+#teste_letra_L()
+#teste_letra_O()
+#teste_letra_I()
+#teste_zigue_zague()
+teste_estrela()
+
+# Finaliza
+print("Fim!")
+ev3.speaker.beep()
+wait(300)
+ev3.speaker.beep()
